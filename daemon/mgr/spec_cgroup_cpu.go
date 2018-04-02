@@ -28,3 +28,24 @@ func setupCgroupCPUSet(ctx context.Context, meta *ContainerMeta, spec *SpecWrapp
 	cpu.Mems = meta.HostConfig.CpusetMems
 	return nil
 }
+
+func setupCgroupCPUQuota(ctx context.Context, meta *ContainerMeta, spec *SpecWrapper) error {
+	s := spec.s
+	if s.Linux.Resources.CPU == nil {
+		s.Linux.Resources.CPU = &specs.LinuxCPU{}
+	}
+	cpu := s.Linux.Resources.CPU
+	cpu.Quota = &meta.HostConfig.CPUQuota
+	return nil
+}
+
+func setupCgroupCPUPeriod(ctx context.Context, meta *ContainerMeta, spec *SpecWrapper) error {
+	s := spec.s
+	if s.Linux.Resources.CPU == nil {
+		s.Linux.Resources.CPU = &specs.LinuxCPU{}
+	}
+	cpu := s.Linux.Resources.CPU
+	v := uint64(meta.HostConfig.CPUPeriod)
+	cpu.Period = &v
+	return nil
+}

@@ -569,7 +569,16 @@ func applyContainerSecurityContext(lc *runtime.LinuxContainerConfig, podSandboxI
 // Apply Linux-specific options if applicable.
 func (c *CriManager) updateCreateConfig(createConfig *apitypes.ContainerCreateConfig, config *runtime.ContainerConfig, sandboxConfig *runtime.PodSandboxConfig, podSandboxID string) error {
 	if lc := config.GetLinux(); lc != nil {
-		// TODO: resource restriction.
+		resources := lc.GetResources()
+		if resources != nil {
+			createConfig.HostConfig.Resources = apitypes.Resources{
+				Memory:		resources.MemoryLimitInBytes,
+				CPUShares:	resources.CpuShares,
+				CPUQuota:	resources.CpuQuota,
+				CPUPeriod:	resources.CpuPeriod,
+			}
+			createConfig.HostConfig.OomScoreAdj = resources.OomScoreAdj
+		}
 
 		// Apply security context.
 		if err := applyContainerSecurityContext(lc, podSandboxID, &createConfig.ContainerConfig, createConfig.HostConfig); err != nil {

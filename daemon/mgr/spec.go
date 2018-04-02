@@ -34,6 +34,8 @@ var setupFunc = []SetupFunc{
 	// cgroup
 	setupCgroupCPUShare,
 	setupCgroupCPUSet,
+	setupCgroupCPUQuota,
+	setupCgroupCPUPeriod,
 	setupCgroupMemory,
 	setupCgroupMemorySwap,
 	setupCgroupMemorySwappiness,
