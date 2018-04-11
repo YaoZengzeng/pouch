@@ -604,12 +604,14 @@ func (mgr *ContainerManager) createContainerdContainer(ctx context.Context, c *C
 	}
 
 	// open container's stdio.
-	io, err := mgr.openContainerIO(c.ID(), nil)
-	if err != nil {
-		return errors.Wrap(err, "failed to open io")
-	}
-	if io.Stdin.OpenStdin() {
-		s.Process.Terminal = true
+	if c.meta.Config.AttachStdout {
+		io, err := mgr.openContainerIO(c.ID(), nil)
+		if err != nil {
+			return errors.Wrap(err, "failed to open io")
+		}
+		if io.Stdin.OpenStdin() {
+			s.Process.Terminal = true
+		}
 	}
 
 	err = mgr.Client.CreateContainer(ctx, &ctrd.Container{
