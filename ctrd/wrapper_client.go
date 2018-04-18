@@ -27,7 +27,7 @@ type WrapperClient struct {
 
 func newWrapperClient(cfg Config) (*WrapperClient, error) {
 	options := []containerd.ClientOpt{
-		containerd.WithDefaultNamespace("default"),
+		containerd.WithDefaultNamespace("k8s.io"),
 	}
 	cli, err := containerd.New(cfg.Address, options...)
 	if err != nil {

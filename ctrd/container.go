@@ -16,6 +16,7 @@ import (
 	"github.com/containerd/containerd/leases"
 	"github.com/containerd/containerd/linux/runctypes"
 	"github.com/containerd/containerd/oci"
+	containerdtypes "github.com/containerd/containerd/api/types"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 )
@@ -120,6 +121,21 @@ func (c *Client) ContainerPIDs(ctx context.Context, id string) ([]int, error) {
 		list = append(list, int(ps.Pid))
 	}
 	return list, nil
+}
+
+// ContainerStats returns stats of the container.
+func (c *Client) ContainerStats(ctx context.Context, id string) (*containerdtypes.Metric, error) {
+	if !c.lock.Trylock(id) {
+		return nil, errtypes.ErrLockfailed
+	}
+	defer c.lock.Unlock(id)
+
+	pack, err := c.watch.get(id)
+	if err != nil {
+		return nil, err
+	}
+
+	return pack.task.Metrics(ctx)
 }
 
 // ProbeContainer probe the container's status, if timeout <= 0, will block to receive message.
@@ -350,6 +366,7 @@ func (c *Client) createContainer(ctx context.Context, ref, id string, container 
 
 	options := []containerd.NewContainerOpts{
 		containerd.WithSpec(container.Spec, specOptions...),
+		containerd.WithContainerLabels(container.Labels),
 		containerd.WithRuntime(fmt.Sprintf("io.containerd.runtime.v1.%s", runtime.GOOS), &runctypes.RuncOptions{
 			Runtime:     container.Runtime,
 			RuntimeRoot: runtimeRoot,

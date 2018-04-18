@@ -32,6 +32,7 @@ import (
 	"github.com/containerd/containerd/errdefs"
 	"github.com/containerd/containerd/namespaces"
 	"github.com/docker/libnetwork"
+	containerdtypes "github.com/containerd/containerd/api/types"
 	"github.com/go-openapi/strfmt"
 	"github.com/imdario/mergo"
 	"github.com/magiconair/properties"
@@ -57,6 +58,9 @@ type ContainerMgr interface {
 
 	// Unpause a container.
 	Unpause(ctx context.Context, name string) error
+
+	// Stats of a container.
+	Stats(ctx context.Context, name string) (*containerdtypes.Metric, error)
 
 	// Attach a container.
 	Attach(ctx context.Context, name string, attach *AttachConfig) error
@@ -648,6 +652,7 @@ func (mgr *ContainerManager) createContainerdContainer(ctx context.Context, c *C
 	if err := mgr.Client.CreateContainer(ctx, &ctrd.Container{
 		ID:      c.ID(),
 		Image:   c.Image(),
+		Labels:	 c.meta.Config.Labels,
 		Runtime: c.meta.HostConfig.Runtime,
 		Spec:    sw.s,
 		IO:      io,
@@ -709,6 +714,22 @@ func (mgr *ContainerManager) stop(ctx context.Context, c *Container, timeout int
 	}
 
 	return mgr.markStoppedAndRelease(c, msg)
+}
+
+func (mgr *ContainerManager) Stats(ctx context.Context, name string) (*containerdtypes.Metric, error) {
+	var (
+		err error
+		c   *Container
+	)
+
+	if c, err = mgr.container(name); err != nil {
+		return nil, err
+	}
+
+	c.Lock()
+	defer c.Unlock()
+
+	return mgr.Client.ContainerStats(ctx, c.ID())
 }
 
 // Pause pauses a running container.

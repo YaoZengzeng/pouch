@@ -42,7 +42,7 @@ func populatePlatform(ctx context.Context, c *ContainerMeta, specWrapper *SpecWr
 	}
 
 	// same with containerd use. or make it a variable
-	cgroupsParent := "default"
+/*	cgroupsParent := "default"
 	if c.HostConfig.CgroupParent != "" {
 		cgroupsParent = c.HostConfig.CgroupParent
 	}
@@ -52,8 +52,9 @@ func populatePlatform(ctx context.Context, c *ContainerMeta, specWrapper *SpecWr
 	// path just like../../../.../../BadPath
 	if !filepath.IsAbs(cgroupsParent) {
 		cgroupsParent = filepath.Clean("/" + cgroupsParent)
-	}
-	s.Linux.CgroupsPath = filepath.Join(cgroupsParent, c.ID)
+	}*/
+	// s.Linux.CgroupsPath = filepath.Join(cgroupsParent, c.ID)
+	s.Linux.CgroupsPath = filepath.Join(c.HostConfig.CgroupParent, c.ID)
 
 	s.Linux.Sysctl = c.HostConfig.Sysctls
 
