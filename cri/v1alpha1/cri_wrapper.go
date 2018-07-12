@@ -100,7 +100,7 @@ func (c *CriWrapper) PodSandboxStatus(ctx context.Context, r *runtime.PodSandbox
 
 // ListPodSandbox returns a list of Sandbox.
 func (c *CriWrapper) ListPodSandbox(ctx context.Context, r *runtime.ListPodSandboxRequest) (res *runtime.ListPodSandboxResponse, err error) {
-	logrus.Infof("ListPodSandbox with filter %+v", r.GetFilter())
+/*	logrus.Infof("ListPodSandbox with filter %+v", r.GetFilter())
 	defer func() {
 		if err != nil {
 			logrus.Errorf("ListPodSandbox failed, error: %v", err)
@@ -108,7 +108,7 @@ func (c *CriWrapper) ListPodSandbox(ctx context.Context, r *runtime.ListPodSandb
 			// NOTE: maybe log detailed sandbox items with higher log level.
 			logrus.Infof("ListPodSandbox returns sandboxes list successfully")
 		}
-	}()
+	}()*/
 	return c.CriManager.ListPodSandbox(ctx, r)
 }
 

@@ -2068,24 +2068,28 @@ func (mgr *ContainerManager) generateMountPoints(ctx context.Context, c *Contain
 	if err != nil {
 		return errors.Wrap(err, "failed to get mount point from containers")
 	}
+	logrus.Infof("%s After getMountPointFromContainers c.mounts is %v", c.ID, c.Mounts)
 
 	// 2. read MountPoints from binds
 	err = mgr.getMountPointFromBinds(ctx, c, volumeSet)
 	if err != nil {
 		return errors.Wrap(err, "failed to get mount point from binds")
 	}
+	logrus.Infof("%s After getMountPointFromBinds c.mounts is %v", c.ID, c.Mounts)
 
 	// 3. read MountPoints from image
 	err = mgr.getMountPointFromImage(ctx, c, volumeSet)
 	if err != nil {
 		return errors.Wrap(err, "failed to get mount point from image")
 	}
+	logrus.Infof("%s After getMountPointFromImage c.mounts is %v", c.ID, c.Mounts)
 
 	// 4. read MountPoints from Config.Volumes
 	err = mgr.getMountPointFromVolumes(ctx, c, volumeSet)
 	if err != nil {
 		return errors.Wrap(err, "failed to get mount point from volumes")
 	}
+	logrus.Infof("%s After getMountPointFromVolumes c.mounts is %v", c.ID, c.Mounts)
 
 	return nil
 }
@@ -2195,6 +2199,8 @@ func (mgr *ContainerManager) getMountPointFromBinds(ctx context.Context, c *Cont
 
 func (mgr *ContainerManager) getMountPointFromVolumes(ctx context.Context, c *Container, volumeSet map[string]struct{}) error {
 	var err error
+
+	logrus.Infof("%s c.Config.Volumes is %v", c.Config.Volumes)
 
 	// parse volumes
 	for dest := range c.Config.Volumes {
