@@ -521,6 +521,10 @@ func setupNetworkNamespace(ctx context.Context, c *Container, specWrapper *SpecW
 	}
 	setNamespace(s, ns)
 
+	if IsCriNone(networkMode) {
+		return nil
+	}
+
 	for _, ns := range s.Linux.Namespaces {
 		if ns.Type == "network" && ns.Path == "" && !c.Config.NetworkDisabled {
 			target, err := os.Readlink(filepath.Join("/proc", strconv.Itoa(os.Getpid()), "exe"))

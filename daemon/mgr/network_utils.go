@@ -25,6 +25,13 @@ func IsNone(mode string) bool {
 	return mode == "none"
 }
 
+// IsCriNone is used to check if network mode is none mode,
+// this mode is only used by CRI container which will bypass
+// the libnetwork.
+func IsCriNone(mode string) bool {
+	return mode == "crinone"
+}
+
 // IsBridge is used to check if network mode is bridge mode.
 func IsBridge(mode string) bool {
 	return mode == "bridge"
