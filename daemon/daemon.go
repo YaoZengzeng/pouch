@@ -183,13 +183,13 @@ func (d *Daemon) Run() error {
 		return err
 	}
 
-	networkMgr, err := internal.GenNetworkMgr(d.config, d)
+/*	networkMgr, err := internal.GenNetworkMgr(d.config, d)
 	if err != nil {
 		return err
 	}
 	d.networkMgr = networkMgr
 	containerMgr.(*mgr.ContainerManager).NetworkMgr = networkMgr
-
+*/
 	if err := d.addSystemLabels(); err != nil {
 		return err
 	}
@@ -200,15 +200,15 @@ func (d *Daemon) Run() error {
 		SystemMgr:       systemMgr,
 		ImageMgr:        imageMgr,
 		VolumeMgr:       volumeMgr,
-		NetworkMgr:      networkMgr,
+		// NetworkMgr:      networkMgr,
 		ContainerPlugin: d.containerPlugin,
 	}
 
 	// init base network
-	err = d.networkInit(ctx)
+/*	err = d.networkInit(ctx)
 	if err != nil {
 		return err
-	}
+	}*/
 
 	// set image proxy
 	ctrd.SetImageProxy(d.config.ImageProxy)

@@ -56,7 +56,7 @@ const (
 	streamServerAddress = ""
 	streamServerPort    = "10011"
 
-	namespaceModeHost = "host"
+	namespaceModeHost = "crihost"
 	namespaceModeNone = "crinone"
 
 	// resolvConfPath is the abs path of resolv.conf on host or container.
