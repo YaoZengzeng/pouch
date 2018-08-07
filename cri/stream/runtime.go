@@ -19,7 +19,7 @@ import (
 // Runtime is the interface to execute the commands and provide the streams.
 type Runtime interface {
 	// Exec executes the command in pod.
-	Exec(ctx context.Context, containerID string, cmd []string, streamOpts *remotecommand.Options, streams *remotecommand.Streams) (uint32, error)
+	Exec(ctx context.Context, containerID string, cmd []string, resizeChan <-chan remotecommand.TerminalSize, streamOpts *remotecommand.Options, streams *remotecommand.Streams) (uint32, error)
 
 	// Attach attaches to pod.
 	Attach(ctx context.Context, containerID string, streamOpts *remotecommand.Options, streams *remotecommand.Streams) error
@@ -38,7 +38,7 @@ func NewStreamRuntime(ctrMgr mgr.ContainerMgr) Runtime {
 }
 
 // Exec executes a command inside the container.
-func (s *streamRuntime) Exec(ctx context.Context, containerID string, cmd []string, streamOpts *remotecommand.Options, streams *remotecommand.Streams) (uint32, error) {
+func (s *streamRuntime) Exec(ctx context.Context, containerID string, cmd []string, resizeChan <-chan remotecommand.TerminalSize, streamOpts *remotecommand.Options, streams *remotecommand.Streams) (uint32, error) {
 	createConfig := &apitypes.ExecCreateConfig{
 		Cmd:          cmd,
 		AttachStdin:  streamOpts.Stdin,
@@ -63,6 +63,16 @@ func (s *streamRuntime) Exec(ctx context.Context, containerID string, cmd []stri
 		return 0, fmt.Errorf("failed to start exec for container %q: %v", containerID, err)
 	}
 
+	handleResizing(resizeChan, func(size remotecommand.TerminalSize) {
+		err := s.containerMgr.ResizeExec(ctx, execid, apitypes.ResizeOptions{
+			Height:	int64(size.Height),
+			Width:	int64(size.Width),
+		})
+		if err != nil {
+			logrus.Errorf("failed to resize process %q console for container %q: %v", execid, containerID, err)
+		}
+	})
+
 	// TODO Find a better way instead of the dead loop
 	var ei *apitypes.ContainerExecInspect
 	for {
@@ -78,6 +88,25 @@ func (s *streamRuntime) Exec(ctx context.Context, containerID string, cmd []stri
 	}
 
 	return uint32(ei.ExitCode), nil
+}
+
+// handleResizing spawns a goroutine that processes the resize channel, calling resizeFunc for each
+// remotecommand.TerminalSize received from the channel. The resize channel must be closed elsewhere to stop the
+// goroutine.
+func handleResizing(resize <-chan remotecommand.TerminalSize, resizeFunc func(size remotecommand.TerminalSize)) {
+	if resize == nil {
+		return
+	}
+
+	go func() {
+		for {
+			size, ok := <-resize
+			if !ok {
+				return
+			}
+			resizeFunc(size)
+		}
+	}()
 }
 
 // Attach attaches to a running container.
