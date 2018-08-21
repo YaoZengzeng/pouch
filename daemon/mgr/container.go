@@ -1534,9 +1534,12 @@ func (mgr *ContainerManager) Disconnect(ctx context.Context, containerName, netw
 }
 
 func (mgr *ContainerManager) openContainerIO(c *Container) (*containerio.IO, error) {
+	logrus.Infof("openContainerIO before Get c.Config.OpenStdin is %v", c.Config.OpenStdin)
 	if io := mgr.IOs.Get(c.ID); io != nil {
 		return io, nil
 	}
+
+	logrus.Infof("openContainerIO after Get c.Config.OpenStdin is %v", c.Config.OpenStdin)
 
 	logInfo := mgr.convContainerToLoggerInfo(c)
 	options := []func(*containerio.Option){
@@ -1685,9 +1688,11 @@ func (mgr *ContainerManager) openAttachIO(c *Container, attach *AttachConfig) (*
 	options = append(options, logOptionsForContainerio(c)...)
 
 	if attach != nil {
+		logrus.Infof("openAttachIO attach.Stdin is %v", attach.Stdin)
 		options = append(options, attachConfigToOptions(attach)...)
 		options = append(options, containerio.WithStdin(attach.Stdin))
 	} else {
+		logrus.Infof("openAttachIO attach is nil")
 		options = append(options, containerio.WithDiscard())
 	}
 

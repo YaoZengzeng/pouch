@@ -100,13 +100,13 @@ func (c *CriWrapper) PodSandboxStatus(ctx context.Context, r *runtime.PodSandbox
 
 // ListPodSandbox returns a list of Sandbox.
 func (c *CriWrapper) ListPodSandbox(ctx context.Context, r *runtime.ListPodSandboxRequest) (res *runtime.ListPodSandboxResponse, err error) {
-	logrus.Infof("ListPodSandbox with filter %+v", r.GetFilter())
+	// logrus.Infof("ListPodSandbox with filter %+v", r.GetFilter())
 	defer func() {
 		if err != nil {
 			logrus.Errorf("ListPodSandbox failed, error: %v", err)
 		} else {
 			// NOTE: maybe log detailed sandbox items with higher log level.
-			logrus.Infof("ListPodSandbox returns sandboxes list successfully")
+			// logrus.Infof("ListPodSandbox returns sandboxes list successfully")
 		}
 	}()
 	return c.CriManager.ListPodSandbox(ctx, r)
@@ -170,13 +170,13 @@ func (c *CriWrapper) RemoveContainer(ctx context.Context, r *runtime.RemoveConta
 
 // ListContainers lists all containers matching the filter.
 func (c *CriWrapper) ListContainers(ctx context.Context, r *runtime.ListContainersRequest) (res *runtime.ListContainersResponse, err error) {
-	logrus.Infof("ListContainers with filter %+v", r.GetFilter())
+	// logrus.Infof("ListContainers with filter %+v", r.GetFilter())
 	defer func() {
 		if err != nil {
 			logrus.Errorf("ListContainers with filter %+v failed, error: %v", r.GetFilter(), err)
 		} else {
 			// NOTE: maybe log detailed container items with higher log level.
-			logrus.Infof("ListContainers with filter %+v returns container list successfully", r.GetFilter())
+			// logrus.Infof("ListContainers with filter %+v returns container list successfully", r.GetFilter())
 		}
 	}()
 	return c.CriManager.ListContainers(ctx, r)

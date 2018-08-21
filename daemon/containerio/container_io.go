@@ -55,6 +55,8 @@ func NewIO(opt *Option) *IO {
 		MuxDisabled: opt.muxDisabled,
 	}
 
+	logrus.Infof("NewIO opt.stdin is %v", opt.stdin)
+
 	if opt.stdin {
 		i.Stdin = create(opt, stdin, backends)
 	}
@@ -72,6 +74,8 @@ func (io *IO) AddBackend(opt *Option) {
 	} {
 		s.add(opt, t, backends)
 	}
+
+	logrus.Infof("AddBackend opt.stdin is %v", opt.stdin)
 
 	if opt.stdin && io.Stdin != nil {
 		io.Stdin.add(opt, stdin, backends)
